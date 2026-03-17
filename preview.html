@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MXZONE Listing Preview — Amazon UK Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #e3e6e6;
+    color: #0f1111;
+  }
+
+  /* ===== TOP CONTROL BAR ===== */
+  .control-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  }
+  .control-bar h1 {
+    color: #fff; font-size: 16px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .control-bar h1 span { font-size: 20px; }
+  .view-toggle {
+    display: flex; gap: 4px;
+    background: rgba(255,255,255,.1);
+    border-radius: 8px; padding: 4px;
+  }
+  .view-btn {
+    padding: 8px 20px;
+    border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,.6);
+    background: transparent;
+    transition: all .2s;
+  }
+  .view-btn.active {
+    background: #fff; color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  .view-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,.1); }
+
+  /* ===== AMAZON HEADER ===== */
+  .amazon-header {
+    background: #131921;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 52px;
+  }
+  .amazon-logo {
+    color: #fff; font-size: 24px; font-weight: 700;
+    font-style: italic; letter-spacing: -1px;
+  }
+  .amazon-logo small { color: #f90; font-size: 12px; font-style: normal; }
+  .search-bar {
+    flex: 1; display: flex; border-radius: 6px; overflow: hidden; height: 38px;
+  }
+  .search-bar input {
+    flex: 1; border: none; padding: 0 14px; font-size: 14px; outline: none;
+  }
+  .search-bar button {
+    width: 46px; background: #febd69; border: none; cursor: pointer;
+    font-size: 18px;
+  }
+  .amazon-subnav {
+    background: #232f3e; padding: 8px 20px;
+    display: flex; gap: 16px;
+  }
+  .amazon-subnav a {
+    color: #fff; text-decoration: none; font-size: 13px; font-weight: 500;
+  }
+
+  /* ===== BREADCRUMB ===== */
+  .breadcrumb {
+    padding: 10px 20px; font-size: 12px; color: #007185;
+    background: #fff; border-bottom: 1px solid #ddd;
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .page-container {
+    max-width: 1200px; margin: 0 auto;
+    background: #fff;
+  }
+
+  /* ===== PRODUCT SECTION ===== */
+  .product-section {
+    display: flex; padding: 20px; gap: 24px;
+    border-bottom: 1px solid #ddd;
+  }
+  .product-images {
+    flex: 0 0 45%;
+  }
+  .main-image {
+    width: 100%; aspect-ratio: 1; border: 1px solid #e7e7e7;
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    position: relative;
+  }
+  .main-image img {
+    width: 100%; height: 100%; object-fit: contain;
+    transition: opacity .3s;
+  }
+  .thumbnails {
+    display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .thumb {
+    width: 56px; height: 56px; border: 2px solid transparent;
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .thumb:hover, .thumb.active { border-color: #e77600; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .product-info { flex: 1; }
+  .product-title {
+    font-size: 20px; font-weight: 500; line-height: 1.4;
+    color: #0f1111; margin-bottom: 8px;
+  }
+  .product-brand { color: #007185; font-size: 14px; margin-bottom: 8px; }
+  .product-rating {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; margin-bottom: 8px;
+  }
+  .stars { color: #de7921; font-size: 16px; }
+  .rating-count { color: #007185; }
+  .product-price {
+    font-size: 28px; font-weight: 400; color: #0f1111;
+    margin: 12px 0; padding: 12px 0; border-top: 1px solid #e7e7e7;
+  }
+  .product-price small { font-size: 14px; color: #565959; }
+
+  .bullet-points { margin-top: 16px; }
+  .bullet-points h3 {
+    font-size: 15px; font-weight: 700; margin-bottom: 8px;
+  }
+  .bullet-points ul {
+    padding-left: 18px; font-size: 14px; line-height: 1.8;
+  }
+  .bullet-points li { margin-bottom: 4px; }
+  .bullet-points li b { font-weight: 600; }
+
+  /* ===== SECTION DIVIDERS ===== */
+  .section-divider {
+    text-align: center; padding: 32px 20px 16px;
+    border-top: 3px solid #e7e7e7;
+  }
+  .section-divider h2 {
+    font-size: 22px; font-weight: 700; color: #0f1111;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .section-divider h2::before,
+  .section-divider h2::after {
+    content: ''; width: 60px; height: 2px; background: #e7e7e7;
+  }
+  .section-label {
+    font-size: 12px; color: #565959; margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ===== A+ CONTENT ===== */
+  .aplus-section {
+    max-width: 970px; margin: 0 auto; padding: 20px;
+  }
+  .aplus-section img {
+    width: 100%; display: block; margin-bottom: 2px;
+  }
+
+  /* ===== MOBILE VIEW ===== */
+  body.mobile .page-container { max-width: 414px; }
+  body.mobile .product-section { flex-direction: column; padding: 12px; gap: 16px; }
+  body.mobile .product-images { flex: none; }
+  body.mobile .main-image { aspect-ratio: 1; }
+  body.mobile .thumbnails { gap: 6px; }
+  body.mobile .thumb { width: 48px; height: 48px; }
+  body.mobile .product-title { font-size: 16px; }
+  body.mobile .product-price { font-size: 22px; }
+  body.mobile .aplus-section { padding: 8px; }
+  body.mobile .amazon-header { padding: 8px 12px; }
+  body.mobile .search-bar { height: 34px; }
+  body.mobile .amazon-subnav { padding: 6px 12px; gap: 10px; font-size: 12px; }
+  body.mobile .bullet-points ul { font-size: 13px; }
+  body.mobile .section-divider h2 { font-size: 18px; }
+
+  /* ===== FOOTER ===== */
+  .preview-footer {
+    text-align: center; padding: 40px 20px;
+    background: #f3f3f3; color: #565959;
+    font-size: 13px; border-top: 1px solid #ddd;
+  }
+  .preview-footer strong { color: #0f1111; }
+</style>
+</head>
+<body>
+
+<!-- Control Bar -->
+<div class="control-bar">
+  <h1><span>🎨</span> MXZONE Listing Preview</h1>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="setView('desktop')">💻 Desktop</button>
+    <button class="view-btn" onclick="setView('mobile')">📱 Mobile</button>
+  </div>
+</div>
+
+<!-- Amazon Header -->
+<div class="amazon-header">
+  <div class="amazon-logo">amazon<small>.co.uk</small></div>
+  <div class="search-bar">
+    <input type="text" value="Dyson V7 V8 HEPA filter replacement" readonly>
+    <button>🔍</button>
+  </div>
+</div>
+<div class="amazon-subnav">
+  <a href="#">All</a>
+  <a href="#">Best Sellers</a>
+  <a href="#">New Releases</a>
+  <a href="#">Today's Deals</a>
+  <a href="#">Home & Garden</a>
+</div>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  Home & Kitchen › Vacuums & Floor Care › Vacuum Accessories › Filters › <b>Handheld Vacuum Filters</b>
+</div>
+
+<div class="page-container">
+
+  <!-- ===== PRODUCT SECTION ===== -->
+  <div class="product-section">
+    <div class="product-images">
+      <div class="main-image">
+        <img id="mainImg" src="00_Main_White_BG.png" alt="Product Image">
+      </div>
+      <div class="thumbnails" id="thumbs">
+        <div class="thumb active" onclick="switchImage(this, '00_Main_White_BG.png')">
+          <img src="00_Main_White_BG.png" alt="Main">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '01_Hero_Breathe_Cleaner_Air.png')">
+          <img src="01_Hero_Breathe_Cleaner_Air.png" alt="Hero">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '02_Wash_Dry_Reuse.png')">
+          <img src="02_Wash_Dry_Reuse.png" alt="Wash">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '03_Compatibility_Chart.png')">
+          <img src="03_Compatibility_Chart.png" alt="Compatibility">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '04_Family_Health_Scene.png')">
+          <img src="04_Family_Health_Scene.png" alt="Family">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '05_Filtration_Science.png')">
+          <img src="05_Filtration_Science.png" alt="Filtration">
+        </div>
+        <div class="thumb" onclick="switchImage(this, '06_Package_Contents.png')">
+          <img src="06_Package_Contents.png" alt="Package">
+        </div>
+      </div>
+    </div>
+
+    <div class="product-info">
+      <a class="product-brand" href="#">Visit the MXZONE Store</a>
+      <h1 class="product-title">
+        2 Pack Premium HEPA Post-Motor Filter Compatible with Dyson V7 V8 Absolute Animal 
+        Cordless Vacuum, Washable & Reusable, Replacement Part #967478
+      </h1>
+      <div class="product-rating">
+        <span class="stars">★★★★★</span>
+        <span>4.6</span>
+        <span class="rating-count">1,707 ratings</span>
+      </div>
+      <div class="product-price">
+        £11.91 <small>FREE delivery</small>
+      </div>
+
+      <div class="bullet-points">
+        <h3>About this item</h3>
+        <ul>
+          <li><b>【Perfect Fit for Dyson V7 & V8】</b> Designed specifically for Dyson V7 Animal, V7 Absolute, V7 Motorhead, V8 Absolute & V8 Animal cordless vacuums. Replaces original HEPA post-motor filter part #967478.</li>
+          <li><b>【True HEPA Filtration】</b> Captures 99.97% of particles as small as 0.3 microns — ideal for allergy sufferers and pet owners. Prevents fine dust from escaping through exhaust.</li>
+          <li><b>【Premium HEPA Material】</b> Constructed from genuine HEPA filter media with ABS frame. Ensures airtight seal and optimal filtration performance, maintaining full suction power.</li>
+          <li><b>【Washable & Reusable】</b> Rinse under cold water, air dry for 24 hours, and reinstall. Replace every 3-6 months for best performance. Saves money compared to buying OEM filters.</li>
+          <li><b>【2 Pack + Cleaning Brush】</b> Includes 2x HEPA post-motor filters + 1x cleaning brush. 100% satisfaction guaranteed — contact us anytime if you need assistance.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== A+ CONTENT SECTION ===== -->
+  <div class="section-divider">
+    <h2>Product Description</h2>
+    <div class="section-label">From the Manufacturer — A+ Content</div>
+  </div>
+
+  <div class="aplus-section">
+    <img src="A+_01_Brand_Banner.png" alt="MXZONE Brand Banner">
+    <img src="A+_02_Perfect_Fit.png" alt="Perfect Fit Compatibility">
+    <img src="A+_03_Filtration_Tech.png" alt="HEPA Filtration Technology">
+    <img src="A+_04_Installation_Guide.png" alt="Easy 3-Step Installation">
+    <img src="A+_05_Wash_Reuse.png" alt="Wash Dry Reuse">
+    <img src="A+_06_Family_Health.png" alt="Protect What Matters Most">
+    <img src="A+_07_Package_Guarantee.png" alt="Package Contents and Guarantee">
+  </div>
+
+  <!-- Footer -->
+  <div class="preview-footer">
+    <p>📋 This is a <strong>preview simulation</strong> for internal review only.</p>
+    <p>Product images: 6 × 1:1 listing photos + 7 × 1464×600 A+ banners</p>
+    <p style="margin-top:8px;">MXZONE — B07WRQ4JFZ — Amazon.co.uk</p>
+  </div>
+
+</div>
+
+<script>
+function switchImage(thumb, src) {
+  document.getElementById('mainImg').src = src;
+  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+function setView(mode) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  if (mode === 'mobile') {
+    document.body.classList.add('mobile');
+    document.querySelectorAll('.view-btn')[1].classList.add('active');
+  } else {
+    document.body.classList.remove('mobile');
+    document.querySelectorAll('.view-btn')[0].classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
