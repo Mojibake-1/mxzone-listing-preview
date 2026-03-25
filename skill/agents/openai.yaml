@@ -1,0 +1,4 @@
+interface:
+  display_name: "Amazon Listing Preview"
+  short_description: "Build Amazon listing sets and preview pages"
+  default_prompt: "Use $amazon-listing-preview to turn this ASIN and these product photos into a complete Amazon image set and a previewable A+ page."

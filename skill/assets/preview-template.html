@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__PAGE_TITLE__</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #e3e6e6;
+    color: #0f1111;
+  }
+  .control-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  }
+  .control-bar h1 {
+    color: #fff; font-size: 16px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .control-bar h1 span { font-size: 20px; }
+  .view-toggle {
+    display: flex; gap: 4px;
+    background: rgba(255,255,255,.1);
+    border-radius: 8px; padding: 4px;
+  }
+  .view-btn {
+    padding: 8px 20px;
+    border: none; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,.6);
+    background: transparent;
+    transition: all .2s;
+  }
+  .view-btn.active {
+    background: #fff; color: #1a1a2e;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  .view-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,.1); }
+  .amazon-header {
+    background: #131921;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 52px;
+  }
+  .amazon-logo {
+    color: #fff; font-size: 24px; font-weight: 700;
+    font-style: italic; letter-spacing: -1px;
+  }
+  .amazon-logo small { color: #f90; font-size: 12px; font-style: normal; }
+  .search-bar {
+    flex: 1; display: flex; border-radius: 6px; overflow: hidden; height: 38px;
+  }
+  .search-bar input {
+    flex: 1; border: none; padding: 0 14px; font-size: 14px; outline: none;
+  }
+  .search-bar button {
+    width: 46px; background: #febd69; border: none; cursor: pointer;
+    font-size: 18px;
+  }
+  .amazon-subnav {
+    background: #232f3e; padding: 8px 20px;
+    display: flex; gap: 16px; overflow-x: auto;
+  }
+  .amazon-subnav a {
+    color: #fff; text-decoration: none; font-size: 13px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .breadcrumb {
+    padding: 10px 20px; font-size: 12px; color: #007185;
+    background: #fff; border-bottom: 1px solid #ddd;
+  }
+  .page-container {
+    max-width: 1200px; margin: 0 auto;
+    background: #fff;
+  }
+  .product-section {
+    display: flex; padding: 20px; gap: 24px;
+    border-bottom: 1px solid #ddd;
+  }
+  .product-images {
+    flex: 0 0 45%;
+  }
+  .main-image {
+    width: 100%; aspect-ratio: 1; border: 1px solid #e7e7e7;
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    position: relative;
+    background: #fff;
+  }
+  .main-image img {
+    width: 100%; height: 100%; object-fit: contain;
+    transition: opacity .3s;
+  }
+  .thumbnails {
+    display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .thumb {
+    width: 56px; height: 56px; border: 2px solid transparent;
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: border-color .2s;
+  }
+  .thumb:hover, .thumb.active { border-color: #e77600; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .product-info { flex: 1; }
+  .product-title {
+    font-size: 20px; font-weight: 500; line-height: 1.4;
+    color: #0f1111; margin-bottom: 8px;
+  }
+  .product-brand { color: #007185; font-size: 14px; margin-bottom: 8px; display: inline-block; }
+  .product-rating {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .stars { color: #de7921; font-size: 16px; letter-spacing: 1px; }
+  .rating-count { color: #007185; }
+  .product-price {
+    font-size: 28px; font-weight: 400; color: #0f1111;
+    margin: 12px 0; padding: 12px 0; border-top: 1px solid #e7e7e7;
+  }
+  .product-price small { font-size: 14px; color: #565959; }
+  .bullet-points { margin-top: 16px; }
+  .bullet-points h3 {
+    font-size: 15px; font-weight: 700; margin-bottom: 8px;
+  }
+  .bullet-points ul {
+    padding-left: 18px; font-size: 14px; line-height: 1.8;
+  }
+  .bullet-points li { margin-bottom: 4px; }
+  .section-divider {
+    text-align: center; padding: 32px 20px 16px;
+    border-top: 3px solid #e7e7e7;
+  }
+  .section-divider h2 {
+    font-size: 22px; font-weight: 700; color: #0f1111;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .section-divider h2::before,
+  .section-divider h2::after {
+    content: ''; width: 60px; height: 2px; background: #e7e7e7;
+  }
+  .section-label {
+    font-size: 12px; color: #565959; margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .aplus-section {
+    max-width: 970px; margin: 0 auto; padding: 20px;
+  }
+  .aplus-section img {
+    width: 100%; display: block; margin-bottom: 2px;
+  }
+  body.mobile .page-container { max-width: 414px; }
+  body.mobile .product-section { flex-direction: column; padding: 12px; gap: 16px; }
+  body.mobile .product-images { flex: none; }
+  body.mobile .main-image { aspect-ratio: 1; }
+  body.mobile .thumbnails { gap: 6px; }
+  body.mobile .thumb { width: 48px; height: 48px; }
+  body.mobile .product-title { font-size: 16px; }
+  body.mobile .product-price { font-size: 22px; }
+  body.mobile .aplus-section { padding: 8px; }
+  body.mobile .amazon-header { padding: 8px 12px; }
+  body.mobile .search-bar { height: 34px; }
+  body.mobile .amazon-subnav { padding: 6px 12px; gap: 10px; font-size: 12px; }
+  body.mobile .bullet-points ul { font-size: 13px; }
+  body.mobile .section-divider h2 { font-size: 18px; }
+  .preview-footer {
+    text-align: center; padding: 40px 20px;
+    background: #f3f3f3; color: #565959;
+    font-size: 13px; border-top: 1px solid #ddd;
+  }
+  .preview-footer strong { color: #0f1111; }
+</style>
+</head>
+<body>
+
+<div class="control-bar">
+  <h1><span>&#127912;</span> __CONTROL_TITLE__</h1>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="setView('desktop')">&#128187; Desktop</button>
+    <button class="view-btn" onclick="setView('mobile')">&#128241; Mobile</button>
+  </div>
+</div>
+
+<div class="amazon-header">
+  <div class="amazon-logo">amazon<small>.__MARKETPLACE_SUFFIX__</small></div>
+  <div class="search-bar">
+    <input type="text" value="__SEARCH_QUERY__" readonly>
+    <button>&#128269;</button>
+  </div>
+</div>
+<div class="amazon-subnav">
+  <a href="#">All</a>
+  <a href="#">Best Sellers</a>
+  <a href="#">New Releases</a>
+  <a href="#">Today's Deals</a>
+  <a href="#">Home &amp; Garden</a>
+</div>
+
+<div class="breadcrumb">__BREADCRUMBS_HTML__</div>
+
+<div class="page-container">
+  <div class="product-section">
+    <div class="product-images">
+      <div class="main-image">
+        <img id="mainImg" src="__MAIN_IMAGE_SRC__" alt="__MAIN_IMAGE_ALT__">
+      </div>
+      <div class="thumbnails" id="thumbs">
+        __THUMBNAILS_HTML__
+      </div>
+    </div>
+
+    <div class="product-info">
+      <a class="product-brand" href="#">__BRAND_LINK_TEXT__</a>
+      <h1 class="product-title">__PRODUCT_TITLE__</h1>
+      <div class="product-rating">
+        <span class="stars">★★★★★</span>
+        <span>__RATING__</span>
+        <span class="rating-count">__RATING_COUNT__</span>
+      </div>
+      <div class="product-price">
+        __CURRENCY_SYMBOL____PRICE__ <small>__DELIVERY_NOTE__</small>
+      </div>
+
+      <div class="bullet-points">
+        <h3>About this item</h3>
+        <ul>
+          __BULLET_ITEMS_HTML__
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider">
+    <h2>__APLUS_HEADING__</h2>
+    <div class="section-label">__APLUS_LABEL__</div>
+  </div>
+
+  <div class="aplus-section">
+    __APLUS_HTML__
+  </div>
+
+  <div class="preview-footer">
+    <p>__FOOTER_NOTE__</p>
+    <p>__FOOTER_SUMMARY__</p>
+    <p style="margin-top:8px;">__FOOTER_META__</p>
+  </div>
+</div>
+
+<script>
+const galleryImages = __GALLERY_DATA_JSON__;
+
+function switchImage(index) {
+  const item = galleryImages[index];
+  if (!item) return;
+  const mainImg = document.getElementById('mainImg');
+  mainImg.src = item.src;
+  mainImg.alt = item.alt;
+  document.querySelectorAll('.thumb').forEach(function (thumb, thumbIndex) {
+    thumb.classList.toggle('active', thumbIndex === index);
+  });
+}
+
+function setView(mode) {
+  document.querySelectorAll('.view-btn').forEach(function (button) {
+    button.classList.remove('active');
+  });
+  if (mode === 'mobile') {
+    document.body.classList.add('mobile');
+    document.querySelectorAll('.view-btn')[1].classList.add('active');
+  } else {
+    document.body.classList.remove('mobile');
+    document.querySelectorAll('.view-btn')[0].classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
