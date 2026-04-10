@@ -5,58 +5,202 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MXZONE Listing Preview — Amazon UK Simulator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  (() => {
+    const THEMES = new Set(['light', 'dark', 'nature', 'stellar']);
+    const STORAGE_KEY = 'muxing-theme';
+    const html = document.documentElement;
+
+    const normalize = (value) => {
+      if (!value || value === 'light') return '';
+      return THEMES.has(value) ? value : '';
+    };
+
+    const persist = () => {
+      const activeTheme = html.getAttribute('data-theme') || 'light';
+      localStorage.setItem(STORAGE_KEY, activeTheme);
+    };
+
+    const apply = (value) => {
+      const normalized = normalize(value);
+      if (normalized) html.setAttribute('data-theme', normalized);
+      else html.removeAttribute('data-theme');
+      persist();
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const queryTheme = params.get('muxing-theme') || params.get('theme');
+    const storedTheme = localStorage.getItem(STORAGE_KEY);
+    apply(THEMES.has(queryTheme) ? queryTheme : storedTheme);
+
+    new MutationObserver(persist).observe(html, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data || data.source !== 'muxing-workbench' || data.type !== 'muxing:set-theme') return;
+      apply(data.theme);
+    });
+  })();
+</script>
 <style>
+  :root {
+    --page-bg: #e3e6e6;
+    --text-primary: #0f1111;
+    --text-secondary: #565959;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --surface-soft: #f6f7f8;
+    --border: #dddddd;
+    --border-strong: #e7e7e7;
+    --control-bar-bg: linear-gradient(135deg, #1a1a2e, #16213e);
+    --control-bar-text: #ffffff;
+    --control-bar-muted: rgba(255,255,255,.6);
+    --control-toggle-bg: rgba(255,255,255,.1);
+    --control-toggle-hover: rgba(255,255,255,.1);
+    --control-toggle-active-bg: #ffffff;
+    --control-toggle-active-text: #1a1a2e;
+    --amazon-header-bg: #131921;
+    --amazon-subnav-bg: #232f3e;
+    --amazon-logo-text: #ffffff;
+    --amazon-accent: #f90;
+    --search-button-bg: #febd69;
+    --brand-link: #007185;
+    --rating-color: #de7921;
+    --thumb-active: #e77600;
+    --footer-bg: #f3f3f3;
+  }
+
+  html[data-theme="dark"] {
+    --page-bg: #121826;
+    --text-primary: #ebe7df;
+    --text-secondary: #9da4b0;
+    --surface: #171f30;
+    --surface-muted: #131a28;
+    --surface-soft: #1f2937;
+    --border: #273247;
+    --border-strong: #243042;
+    --control-bar-bg: linear-gradient(135deg, #0f172a, #1e293b);
+    --control-bar-muted: rgba(255,255,255,.68);
+    --control-toggle-bg: rgba(255,255,255,.08);
+    --control-toggle-hover: rgba(255,255,255,.12);
+    --control-toggle-active-bg: #f8fafc;
+    --control-toggle-active-text: #0f172a;
+    --amazon-header-bg: #0f172a;
+    --amazon-subnav-bg: #172033;
+    --brand-link: #7dd3fc;
+    --rating-color: #fbbf24;
+    --thumb-active: #f59e0b;
+    --footer-bg: #101726;
+  }
+
+  html[data-theme="nature"] {
+    --page-bg: #e9efe8;
+    --text-primary: #203027;
+    --text-secondary: #5f6e63;
+    --surface: #f9fbf7;
+    --surface-muted: #eef3eb;
+    --surface-soft: #f2f6ef;
+    --border: #d4ddd0;
+    --border-strong: #dfe7db;
+    --control-bar-bg: linear-gradient(135deg, #2d4a3a, #436b54);
+    --control-bar-text: #f5f8f2;
+    --control-bar-muted: rgba(245,248,242,.68);
+    --control-toggle-bg: rgba(245,248,242,.1);
+    --control-toggle-hover: rgba(245,248,242,.14);
+    --control-toggle-active-bg: #f5f8f2;
+    --control-toggle-active-text: #274233;
+    --amazon-header-bg: #304438;
+    --amazon-subnav-bg: #415746;
+    --amazon-logo-text: #f5f8f2;
+    --amazon-accent: #d8b36a;
+    --search-button-bg: #c7a65c;
+    --brand-link: #2f7f73;
+    --rating-color: #b7802f;
+    --thumb-active: #7a9968;
+    --footer-bg: #eef3eb;
+  }
+
+  html[data-theme="stellar"] {
+    --page-bg: #0b1020;
+    --text-primary: #eee5d7;
+    --text-secondary: #a8a7bb;
+    --surface: #12192c;
+    --surface-muted: #0f1525;
+    --surface-soft: #182038;
+    --border: #242d46;
+    --border-strong: #1e2840;
+    --control-bar-bg: linear-gradient(135deg, #171b33, #0d1529);
+    --control-bar-text: #f3eadc;
+    --control-bar-muted: rgba(243,234,220,.68);
+    --control-toggle-bg: rgba(243,234,220,.08);
+    --control-toggle-hover: rgba(243,234,220,.12);
+    --control-toggle-active-bg: #f3eadc;
+    --control-toggle-active-text: #171b33;
+    --amazon-header-bg: #10172a;
+    --amazon-subnav-bg: #161f35;
+    --amazon-logo-text: #f3eadc;
+    --amazon-accent: #d3a45f;
+    --search-button-bg: #d3a45f;
+    --brand-link: #8fc5e8;
+    --rating-color: #f0c27b;
+    --thumb-active: #d3a45f;
+    --footer-bg: #101726;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #e3e6e6;
-    color: #0f1111;
+    background: var(--page-bg);
+    color: var(--text-primary);
   }
 
   /* ===== TOP CONTROL BAR ===== */
   .control-bar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    background: var(--control-bar-bg);
     padding: 12px 24px;
     display: flex; align-items: center; justify-content: space-between;
     box-shadow: 0 4px 20px rgba(0,0,0,.3);
   }
   .control-bar h1 {
-    color: #fff; font-size: 16px; font-weight: 600;
+    color: var(--control-bar-text); font-size: 16px; font-weight: 600;
     display: flex; align-items: center; gap: 8px;
   }
   .control-bar h1 span { font-size: 20px; }
   .view-toggle {
     display: flex; gap: 4px;
-    background: rgba(255,255,255,.1);
+    background: var(--control-toggle-bg);
     border-radius: 8px; padding: 4px;
   }
   .view-btn {
     padding: 8px 20px;
     border: none; border-radius: 6px; cursor: pointer;
     font-size: 14px; font-weight: 600;
-    color: rgba(255,255,255,.6);
+    color: var(--control-bar-muted);
     background: transparent;
     transition: all .2s;
   }
   .view-btn.active {
-    background: #fff; color: #1a1a2e;
+    background: var(--control-toggle-active-bg); color: var(--control-toggle-active-text);
     box-shadow: 0 2px 8px rgba(0,0,0,.2);
   }
-  .view-btn:hover:not(.active) { color: #fff; background: rgba(255,255,255,.1); }
+  .view-btn:hover:not(.active) { color: var(--control-bar-text); background: var(--control-toggle-hover); }
 
   /* ===== AMAZON HEADER ===== */
   .amazon-header {
-    background: #131921;
+    background: var(--amazon-header-bg);
     padding: 10px 20px;
     display: flex; align-items: center; gap: 16px;
     margin-top: 52px;
   }
   .amazon-logo {
-    color: #fff; font-size: 24px; font-weight: 700;
+    color: var(--amazon-logo-text); font-size: 24px; font-weight: 700;
     font-style: italic; letter-spacing: -1px;
   }
-  .amazon-logo small { color: #f90; font-size: 12px; font-style: normal; }
+  .amazon-logo small { color: var(--amazon-accent); font-size: 12px; font-style: normal; }
   .search-bar {
     flex: 1; display: flex; border-radius: 6px; overflow: hidden; height: 38px;
   }
@@ -64,39 +208,39 @@
     flex: 1; border: none; padding: 0 14px; font-size: 14px; outline: none;
   }
   .search-bar button {
-    width: 46px; background: #febd69; border: none; cursor: pointer;
+    width: 46px; background: var(--search-button-bg); border: none; cursor: pointer;
     font-size: 18px;
   }
   .amazon-subnav {
-    background: #232f3e; padding: 8px 20px;
+    background: var(--amazon-subnav-bg); padding: 8px 20px;
     display: flex; gap: 16px;
   }
   .amazon-subnav a {
-    color: #fff; text-decoration: none; font-size: 13px; font-weight: 500;
+    color: var(--amazon-logo-text); text-decoration: none; font-size: 13px; font-weight: 500;
   }
 
   /* ===== BREADCRUMB ===== */
   .breadcrumb {
-    padding: 10px 20px; font-size: 12px; color: #007185;
-    background: #fff; border-bottom: 1px solid #ddd;
+    padding: 10px 20px; font-size: 12px; color: var(--brand-link);
+    background: var(--surface); border-bottom: 1px solid var(--border);
   }
 
   /* ===== MAIN CONTAINER ===== */
   .page-container {
     max-width: 1200px; margin: 0 auto;
-    background: #fff;
+    background: var(--surface);
   }
 
   /* ===== PRODUCT SECTION ===== */
   .product-section {
     display: flex; padding: 20px; gap: 24px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border);
   }
   .product-images {
     flex: 0 0 45%;
   }
   .main-image {
-    width: 100%; aspect-ratio: 1; border: 1px solid #e7e7e7;
+    width: 100%; aspect-ratio: 1; border: 1px solid var(--border-strong);
     border-radius: 4px; overflow: hidden; cursor: pointer;
     position: relative;
   }
@@ -112,26 +256,26 @@
     border-radius: 4px; overflow: hidden; cursor: pointer;
     transition: border-color .2s;
   }
-  .thumb:hover, .thumb.active { border-color: #e77600; }
+  .thumb:hover, .thumb.active { border-color: var(--thumb-active); }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
   .product-info { flex: 1; }
   .product-title {
     font-size: 20px; font-weight: 500; line-height: 1.4;
-    color: #0f1111; margin-bottom: 8px;
+    color: var(--text-primary); margin-bottom: 8px;
   }
-  .product-brand { color: #007185; font-size: 14px; margin-bottom: 8px; }
+  .product-brand { color: var(--brand-link); font-size: 14px; margin-bottom: 8px; }
   .product-rating {
     display: flex; align-items: center; gap: 8px;
     font-size: 14px; margin-bottom: 8px;
   }
-  .stars { color: #de7921; font-size: 16px; }
-  .rating-count { color: #007185; }
+  .stars { color: var(--rating-color); font-size: 16px; }
+  .rating-count { color: var(--brand-link); }
   .product-price {
-    font-size: 28px; font-weight: 400; color: #0f1111;
-    margin: 12px 0; padding: 12px 0; border-top: 1px solid #e7e7e7;
+    font-size: 28px; font-weight: 400; color: var(--text-primary);
+    margin: 12px 0; padding: 12px 0; border-top: 1px solid var(--border-strong);
   }
-  .product-price small { font-size: 14px; color: #565959; }
+  .product-price small { font-size: 14px; color: var(--text-secondary); }
 
   .bullet-points { margin-top: 16px; }
   .bullet-points h3 {
@@ -146,18 +290,18 @@
   /* ===== SECTION DIVIDERS ===== */
   .section-divider {
     text-align: center; padding: 32px 20px 16px;
-    border-top: 3px solid #e7e7e7;
+    border-top: 3px solid var(--border-strong);
   }
   .section-divider h2 {
-    font-size: 22px; font-weight: 700; color: #0f1111;
+    font-size: 22px; font-weight: 700; color: var(--text-primary);
     display: inline-flex; align-items: center; gap: 10px;
   }
   .section-divider h2::before,
   .section-divider h2::after {
-    content: ''; width: 60px; height: 2px; background: #e7e7e7;
+    content: ''; width: 60px; height: 2px; background: var(--border-strong);
   }
   .section-label {
-    font-size: 12px; color: #565959; margin-top: 4px;
+    font-size: 12px; color: var(--text-secondary); margin-top: 4px;
     text-transform: uppercase; letter-spacing: 1px;
   }
 
@@ -188,10 +332,10 @@
   /* ===== FOOTER ===== */
   .preview-footer {
     text-align: center; padding: 40px 20px;
-    background: #f3f3f3; color: #565959;
-    font-size: 13px; border-top: 1px solid #ddd;
+    background: var(--footer-bg); color: var(--text-secondary);
+    font-size: 13px; border-top: 1px solid var(--border);
   }
-  .preview-footer strong { color: #0f1111; }
+  .preview-footer strong { color: var(--text-primary); }
 </style>
 </head>
 <body>
