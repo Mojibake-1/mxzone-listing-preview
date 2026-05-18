@@ -3,11 +3,13 @@ from __future__ import annotations
 import argparse
 import json
 import html
+import shutil
 from pathlib import Path
 from typing import Any
 
 
 DEFAULT_TEMPLATE_NAME = "preview-template.html"
+THEME_BRIDGE_ASSET_NAME = "muxing-theme-bridge.global.js"
 
 
 def parse_args() -> argparse.Namespace:
@@ -236,6 +238,9 @@ def main() -> None:
     rendered = fill_template(template, replacements)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(rendered, encoding="utf-8")
+    theme_bridge_asset = template_path.with_name(THEME_BRIDGE_ASSET_NAME)
+    if theme_bridge_asset.exists():
+        shutil.copy2(theme_bridge_asset, output_path.with_name(THEME_BRIDGE_ASSET_NAME))
     print(f"Rendered preview: {output_path}")
 
 
